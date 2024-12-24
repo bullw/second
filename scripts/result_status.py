@@ -26,9 +26,23 @@ def count_statuses(report_dir):
             print(f"Error reading {file_path}: {e}")
 
     # 打印统计结果
-    print("Test Result Summary:")
+        html_output = """<table border="1" style="border-collapse:collapse;">
+<tr>
+    <th>Status</th>
+    <th>Count</th>
+</tr>"""
+
     for status, count in status_count.items():
-        print(f"{status.capitalize()} Count: {count}")
+        html_output += f"""
+<tr>
+    <td>{status.capitalize()}</td>
+    <td>{count}</td>
+</tr>"""
+
+    html_output += """
+</table>
+"""
+    print(html_output)
 
 if __name__ == '__main__':
     if len(sys.argv) != 2:
