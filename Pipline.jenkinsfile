@@ -26,19 +26,17 @@ pipeline {
                 sh "./pytest-env/bin/python -m pytest ${params.testsuite} --alluredir ${params.alluredir}_${env.build_date}"
             }
         }
-        stage('Generate Allure Report') {
-            steps {
-                sh "allure generate ${params.alluredir}_${env.build_date} -o -c allure-report_${env.build_date}"
-            }
-        }
         stage('Allure Report') {
             steps {
                 sh 'export PATH=$PATH:/var/jenkins_home/allure_commline/allure-2.32.0/bin/allure'
-                allure
-                includeProperties: false,
-                jdk: '',
-                ${params.alluredir}_${env.build_date}: 'allure-report_'${env.build_date},
-                results: [[path: 'report_date']]
+                allure([
+                    includeProperties: false,
+                    jdk: '',
+                    properties: [],
+                    reportBuildPolicy: 'ALWAYS',
+                    results: [[path: ${params.alluredir}_${env.build_date}]],
+                    reportPath: allure-report_${env.build_date}
+                ])
             }
         }
     }
