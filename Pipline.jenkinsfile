@@ -18,14 +18,12 @@ pipeline {
     stages {
         stage('Build environment') {
             steps {
-                sh "python3 -m venv pytest-env"
-                sh ". pytest-env"
-                sh "pip install -r requirements.txt"
+                sh "python3 -m venv pytest-env && . pytest-env && pip install -r requirements.txt"
             }
         }
         stage('Run Pytest Tests') {
             steps {
-                sh "pytest ${params.testsuite} --alluredir ${params.alluredir}_${env.build_date}"
+                sh "./pytest-env/bin/python -m pytest ${params.testsuite} --alluredir ${params.alluredir}_${env.build_date}"
             }
         }
         stage('Generate Allure Report') {
