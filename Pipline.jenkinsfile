@@ -1,11 +1,10 @@
 pipeline {
     agent any
     parameters {
-        // 使用 Active Choices 参数
         activeChoice(name: 'testcases', 
                      choices: ['testcases/api_test', 'testcases/scenario_test'], 
                      description: '选择测试模块（可多选）',
-                     multiSelect: true)
+                     filterable: true) // 注意使用 filterable 代替 multiSelect
         string(
             name: 'alluredir',
             defaultValue: 'report',
@@ -19,19 +18,12 @@ pipeline {
         stage('Prepare Test Modules') {
             steps {
                 script {
-                    // 获取用户选择的测试模块
+                    // 获取用户选择的测试模块，并处理为单个字符串
                     def selectedTests = params.testcases.split(',').collect { it.trim() }
                     // 将选择的测试模块用空格连接
                     env.TEST_MODULES = selectedTests.join(' ')
                     echo "Test modules to run: ${env.TEST_MODULES}"
                 }
-            }
-        }
-        stage('Build environment') {
-            steps {
-                sh "python3 -m venv pytest-env"
-                sh ". pytest-env"
-                sh "pip install -r requirements.txt"
             }
         }
         stage('Run Pytest Tests') {
