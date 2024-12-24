@@ -34,7 +34,7 @@ def count_statuses(report_dir):
 
     for status, count in status_count.items():
         html_output += f"""
-<tr>
+<tr class="{status}">
     <td>{status.capitalize()}</td>
     <td>{count}</td>
 </tr>"""

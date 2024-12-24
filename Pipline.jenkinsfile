@@ -59,6 +59,34 @@ pipeline {
             emailext(
                 subject: "【Dailyrun】Interface auto test",
                 body: """<html>
+                            <head>
+                                <style>
+                                    table {
+                                        width: 100%; /* 设置表格宽度为100% */
+                                        border-collapse: collapse;
+                                    }
+                                    th, td {
+                                        border: 1px solid #ddd;
+                                        padding: 8px;
+                                        text-align: center;
+                                    }
+                                    th {
+                                        background-color: #f2f2f2;
+                                    }
+                                    .passed {
+                                        background-color: #dff0d8; /* 绿色背景 */
+                                    }
+                                    .failed {
+                                        background-color: #f2dede; /* 红色背景 */
+                                    }
+                                    .skipped {
+                                        background-color: #fcf8e3; /* 黄色背景 */
+                                    }
+                                    .unknown {
+                                        background-color: #d9edf7; /* 蓝色背景 */
+                                    }
+                                </style>
+                            </head>
                             <body>
                                 <h3>Details of the pipeline build: ${currentBuild.fullDisplayName}</h3>
                                 <p>Build result: ${currentBuild.currentResult}</p>
