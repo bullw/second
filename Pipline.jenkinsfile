@@ -34,10 +34,10 @@ pipeline {
         stage('Allure Report') {
             steps {
                 sh 'export PATH=$PATH:/var/jenkins_home/allure_commline/allure-2.32.0/bin/allure'
-                allure 
-                includeProperties: false, 
-                jdk: '', 
-                ${params.alluredir}_${env.build_date}: 'allure-report_'${env.build_date}, 
+                allure
+                includeProperties: false,
+                jdk: '',
+                ${params.alluredir}_${env.build_date}: 'allure-report_'${env.build_date},
                 results: [[path: 'report_date']]
             }
         }
