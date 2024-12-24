@@ -3,14 +3,8 @@ pipeline {
     parameters {
         choice(
             name: 'testcases',
-            choices: ['api_test', 'scenario_test'],
-            description: '选择测试模块'
-        )
-        choice(
-            name: 'second_dropdown',
-            choices: ['web_test', 'logi_test'],
-            description: '根据第一个选择来确定可选的具体测试类型，可多选',
-            multiSelect: true
+            choices: ['testcases/api_test', 'testcases/scenario_test'],
+            description: '选择测试模块（可多选，用空格分开）'
         )
         string(
             name: 'alluredir',
@@ -25,24 +19,11 @@ pipeline {
         stage('Prepare Test Modules') {
             steps {
                 script {
-                    def firstChoice = params.testcases
-                    def second_choices = []
-                    // 根据第一个下拉框的选择来动态设置第二个下拉框的选项
-                    switch (firstChoice) {
-                        case 'testcases':
-                            second_choices = ['api_test','scenario_test']
-                            break
-                        case 'second_dropdown':
-                            second_choices = ['web_test', 'logi_test']
-                            break
-                    }
-                    // 将动态设置好的选项赋值给second_dropdown参数，使其可选内容更新
-                    params.second_dropdown = second_choices
-                    def testmodules = ""
-                    for (int i = 0; i < second_choices.size(); i++) {
-                        testmodules += "${firstChoice}${second_choices[i]} "
-                    }
-                    env.TEST_MODULES = testmodules.trim()
+                    // 获取用户的选择
+                    def selectedTests = params.testcases.split(',').collect { it.trim() }
+                    // 将选择的测试模块用空格连接
+                    env.TEST_MODULES = selectedTests.join(' ')
+                    echo "Test modules to run: ${env.TEST_MODULES}"
                 }
             }
         }
@@ -53,7 +34,7 @@ pipeline {
         }
         stage('Generate Allure Report') {
             steps {
-                sh "allure generate ${params.alluredir}${env.build_date} -o allure-report_${env.build_date}"
+                sh "allure generate ${params.alluredir}_${env.build_date} -o allure-report_${env.build_date}"
             }
         }
     }
