@@ -18,7 +18,7 @@ pipeline {
     stages {
         stage('Build environment') {
             steps {
-                sh "python3 -m venv pytest-env && . pytest-env && pip install -r requirements.txt"
+                sh "python3 -m venv pytest-env &&  . pytest-env/bin/activate && pip install -r requirements.txt"
             }
         }
         stage('Run Pytest Tests') {
