@@ -58,11 +58,12 @@ pipeline {
             def resultFiles = new File(allureResultsPath).listFiles({ file ->
                 file.name.endsWith('result.json')
             } as FileFilter)
-
+            echo "Result Files Found: ${resultFiles.collect { it.name }}"
             resultFiles.each { resultFile ->
                 try {
                     def jsonData = readJSON file: resultFile.absolutePath
                     def status = jsonData.status
+                    echo "Status: ${status}"
                     switch (status) {
                         case "passed":
                             passedCount++
