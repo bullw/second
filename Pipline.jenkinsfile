@@ -56,7 +56,7 @@ pipeline {
                 body: "Details of the pipeline build: ${currentBuild.fullDisplayName}\n" +
                     "Build result: ${currentBuild.currentResult}\n\n" +
                     "Allure Report Summary:\n" +
-                    "${case_result}\n" +
+                    "${case_result}\n",
                 to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
