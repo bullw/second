@@ -50,6 +50,8 @@ pipeline {
                     def case_result = sh(script: "python3 scripts/result_status.py ${params.alluredir}_${env.build_date}", returnStdout: true).trim()
                     // 将结果存储到环境变量，以便在 post 块中使用
                     env.CASE_RESULT = case_result
+                    def buildUrl = "${env.JENKINS_URL}/job/${env.JOB_NAME}/${env.BUILD_ID}/"
+                    env.BUILDURL = buildUrl
                 }
             }
         }
@@ -88,12 +90,13 @@ pipeline {
                                 </style>
                             </head>
                             <body>
-                                <h3><a href="${buildUrl}">Details of the pipeline build: ${currentBuild.fullDisplayName}</a></h3>
+                                <h3><a href="${BUILDURL}">Details of the pipeline build: ${currentBuild.fullDisplayName}</a></h3>
                                 <p>Build result: ${currentBuild.currentResult}</p>
                                 ${env.CASE_RESULT}
                             </body>
                         </html>""",
-                to: 'zhaoyu.wang@thundersoft.com',  // 替换为实际收件人邮箱地址
+                // 替换为实际收件人邮箱地址
+                to: 'zhaoyu.wang@thundersoft.com',
                 mimeType: 'text/html'
             )
         }
