@@ -58,10 +58,10 @@ pipeline {
         always {
             emailext(
                 subject: "Pipeline Build Status: ${currentBuild.currentResult}",
-                body: "Details of the pipeline build: ${currentBuild.fullDisplayName}\n" +
-                      "Build result: ${currentBuild.currentResult}\n\n" +
-                      "Allure Report Summary:\n" +
-                      "${env.CASE_RESULT}\n",
+                body: "Details of the pipeline build: ${currentBuild.fullDisplayName}<br><br>" +
+                      "Build result: ${currentBuild.currentResult}<br>c" +
+                      "Allure Report Summary:<br><br>" +
+                      "${env.CASE_RESULT}<br><br>",
                 to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
