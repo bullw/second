@@ -53,30 +53,37 @@ pipeline {
             def failedCases = []
             def skippedCases = []
             def allureResultsPath = "${params.alluredir}_${env.build_date}"
-            // 使用 file 函数获取目录对象，然后遍历该目录下的文件
-            def resultFiles = file(allureResultsPath).listFiles({ file ->
+            
+            // 获取目录对象并遍历结果文件
+            def resultFiles = new File(allureResultsPath).listFiles({ file ->
                 file.name.endsWith('result.json')
             } as FileFilter)
+
             resultFiles.each { resultFile ->
-                def jsonData = readJSON file: resultFile.path
-                def status = jsonData.status
-                switch (status) {
-                    case "passed":
-                        passedCount++
-                        break
-                    case "failed":
-                        failedCount++
-                        failedCases << resultFile.name.replace('.result.json', '')
-                        break
-                    case "skipped":
-                        skippedCount++
-                        skippedCases << resultFile.name.replace('.result.json', '')
-                        break
-                    default:
-                        // 可以根据实际情况处理其他未知状态，这里暂不做特殊处理
-                        break
+                try {
+                    def jsonData = readJSON file: resultFile.absolutePath
+                    def status = jsonData.status
+                    switch (status) {
+                        case "passed":
+                            passedCount++
+                            break
+                        case "failed":
+                            failedCount++
+                            failedCases << resultFile.name.replace('.result.json', '')
+                            break
+                        case "skipped":
+                            skippedCount++
+                            skippedCases << resultFile.name.replace('.result.json', '')
+                            break
+                        default:
+                            echo "Unknown status in ${resultFile.name}: ${status}"
+                            break
+                    }
+                } catch (Exception e) {
+                    echo "Error reading JSON from ${resultFile.name}: ${e.message}"
                 }
             }
+            
             env.PASSED_COUNT = passedCount.toString()
             env.FAILED_COUNT = failedCount.toString()
             env.SKIPPED_COUNT = skippedCount.toString()
