@@ -34,8 +34,8 @@ pipeline {
                     jdk: '',
                     properties: [],
                     reportBuildPolicy: 'ALWAYS',
-                    results: [[path: ${params.alluredir}_${env.build_date}]],
-                    reportPath: allure-report_${env.build_date}
+                    results: [[path: "${params.alluredir}_${env.build_date}"]],
+                    reportPath: "allure-report_${env.build_date}"
                 ])
             }
         }
