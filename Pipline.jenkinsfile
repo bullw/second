@@ -47,7 +47,7 @@ pipeline {
             steps {
                 script {
                     // 执行结果统计 Python 脚本，并捕获输出
-                    def case_result = sh(script: "python3 scripts\result_status.py ${params.alluredir}_${env.build_date}", returnStdout: true).trim()
+                    def case_result = sh(script: "python3 scripts/result_status.py ${params.alluredir}_${env.build_date}", returnStdout: true).trim()
                     // 将结果存储到环境变量，以便在 post 块中使用
                     env.CASE_RESULT = case_result
                 }
