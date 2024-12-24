@@ -58,8 +58,7 @@ pipeline {
                 file.name.endsWith('result.json')
             } as FileFilter)
             resultFiles.each { resultFile ->
-                def jsonText = readFile(resultFile.path)
-                def jsonData = new groovy.json.JsonSlurper().parseText(jsonText)
+                def jsonData = readJSON file: resultFile.path
                 def status = jsonData.status
                 switch (status) {
                     case "passed":
