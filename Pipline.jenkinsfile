@@ -91,8 +91,8 @@ pipeline {
             env.SKIPPED_CASES = skippedCases.join(', ')
         }
             emailext(
-                subject: 'Pipeline Build Status: ${currentBuild.currentResult}',
-                body: '''Details of the pipeline build: ${currentBuild.fullDisplayName}
+                subject: "Pipeline Build Status: ${currentBuild.currentResult}",
+                body: """Details of the pipeline build: ${currentBuild.fullDisplayName}
 Build result: ${currentBuild.currentResult}
 
 Allure Report Summary:
@@ -100,7 +100,7 @@ Passed Case Count: ${env.PASSED_COUNT}
 Failed Case Count: ${env.FAILED_COUNT}
 Failed Cases: ${env.FAILED_CASES}
 Skipped Case Count: ${env.SKIPPED_COUNT}
-Skipped Cases: ${env.SKIPPED_CASES}''',
+Skipped Cases: ${env.SKIPPED_CASES}""",
                 to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
