@@ -1,13 +1,16 @@
 pipeline {
     agent any
     parameters {
-        // 使用activeChoice实现多选，配置choiceType为CHECKBOX
+        // 修正后的activeChoice配置，使用script来指定动态生成选项的脚本逻辑
         activeChoice(name: 'testcases', 
                      choiceType: 'CHECKBOX', 
                      description: '选择测试模块（可多选）',
-                     groovyScript: {
-                         return ['testcases/api_test', 'testcases/scenario_test']
-                     })
+                     script: [
+                         $class: 'groovyScript',
+                         script: '''
+                             return ['testcases/api_test', 'testcases/scenario_test']
+                         '''
+                     ])
         string(
             name: 'alluredir',
             defaultValue: 'report',
