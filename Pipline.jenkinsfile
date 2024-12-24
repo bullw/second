@@ -43,65 +43,20 @@ pipeline {
                 ])
             }
         }
+        stage('Get results') {
+            steps {
+                case_result = sh(script: "python ${params.alluredir}_${env.build_date}", returnStdout: true).trim()
+            }
+        }
     }
     post {
         always {
-        script {
-            def passedCount = 0
-            def failedCount = 0
-            def skippedCount = 0
-            def failedCases = []
-            def skippedCases = []
-            def allureResultsPath = "${params.alluredir}_${env.build_date}"
-            
-            // 获取目录对象并遍历结果文件
-            def resultFiles = new File(allureResultsPath).listFiles({ file ->
-                file.name.endsWith('result.json')
-            } as FileFilter)
-            echo "Result Files Found: ${resultFiles.collect { it.name }}"
-            resultFiles.each { resultFile ->
-                try {
-                    def jsonData = readJSON file: resultFile.absolutePath
-                    def status = jsonData.status
-                    echo "Status: ${status}"
-                    switch (status) {
-                        case "passed":
-                            passedCount++
-                            break
-                        case "failed":
-                            failedCount++
-                            failedCases << resultFile.name.replace('.result.json', '')
-                            break
-                        case "skipped":
-                            skippedCount++
-                            skippedCases << resultFile.name.replace('.result.json', '')
-                            break
-                        default:
-                            echo "Unknown status in ${resultFile.name}: ${status}"
-                            break
-                    }
-                } catch (Exception e) {
-                    echo "Error reading JSON from ${resultFile.name}: ${e.message}"
-                }
-            }
-            
-            env.PASSED_COUNT = passedCount.toString()
-            env.FAILED_COUNT = failedCount.toString()
-            env.SKIPPED_COUNT = skippedCount.toString()
-            env.FAILED_CASES = failedCases.join(', ')
-            env.SKIPPED_CASES = skippedCases.join(', ')
-        }
             emailext(
                 subject: "Pipeline Build Status: ${currentBuild.currentResult}",
-                body: """Details of the pipeline build: ${currentBuild.fullDisplayName}
-Build result: ${currentBuild.currentResult}
-
-Allure Report Summary:
-Passed Case Count: ${env.PASSED_COUNT}
-Failed Case Count: ${env.FAILED_COUNT}
-Failed Cases: ${env.FAILED_CASES}
-Skipped Case Count: ${env.SKIPPED_COUNT}
-Skipped Cases: ${env.SKIPPED_CASES}""",
+                body: "Details of the pipeline build: ${currentBuild.fullDisplayName}\n" +
+                    "Build result: ${currentBuild.currentResult}\n\n" +
+                    "Allure Report Summary:\n" +
+                    "${case_result}\n" +
                 to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
