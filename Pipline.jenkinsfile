@@ -1,10 +1,13 @@
 pipeline {
     agent any
     parameters {
+        // 使用activeChoice实现多选，配置choiceType为CHECKBOX
         activeChoice(name: 'testcases', 
-                     choices: ['testcases/api_test', 'testcases/scenario_test'], 
+                     choiceType: 'CHECKBOX', 
                      description: '选择测试模块（可多选）',
-                     filterable: true) // 注意使用 filterable 代替 multiSelect
+                     groovyScript: {
+                         return ['testcases/api_test', 'testcases/scenario_test']
+                     })
         string(
             name: 'alluredir',
             defaultValue: 'report',
@@ -24,6 +27,13 @@ pipeline {
                     env.TEST_MODULES = selectedTests.join(' ')
                     echo "Test modules to run: ${env.TEST_MODULES}"
                 }
+            }
+        }
+        stage('Build environment') {
+            steps {
+                sh "python3 -m venv pytest-env"
+                sh ". pytest-env"
+                sh "pip install -r requirements.txt"
             }
         }
         stage('Run Pytest Tests') {
