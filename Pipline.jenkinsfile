@@ -1,16 +1,11 @@
 pipeline {
     agent any
     parameters {
-        // 修正后的activeChoice配置，使用script来指定动态生成选项的脚本逻辑
-        activeChoice(name: 'testcases', 
-                     choiceType: 'CHECKBOX', 
-                     description: '选择测试模块（可多选）',
-                     script: [
-                         $class: 'groovyScript',
-                         script: '''
-                             return ['testcases/api_test', 'testcases/scenario_test']
-                         '''
-                     ])
+        choice(
+            name: 'testsuite',
+            choices: ['testcases/', 'testcases/api_test', 'testcases/scenario_test'],
+            description: '选择测试模块'
+        )
         string(
             name: 'alluredir',
             defaultValue: 'report',
@@ -21,17 +16,6 @@ pipeline {
         build_date = sh(script: 'date +%Y%m%d%H%M%S', returnStdout: true).trim()
     }
     stages {
-        stage('Prepare Test Modules') {
-            steps {
-                script {
-                    // 获取用户选择的测试模块，并处理为单个字符串
-                    def selectedTests = params.testcases.split(',').collect { it.trim() }
-                    // 将选择的测试模块用空格连接
-                    env.TEST_MODULES = selectedTests.join(' ')
-                    echo "Test modules to run: ${env.TEST_MODULES}"
-                }
-            }
-        }
         stage('Build environment') {
             steps {
                 sh "python3 -m venv pytest-env"
@@ -41,12 +25,12 @@ pipeline {
         }
         stage('Run Pytest Tests') {
             steps {
-                sh "pytest ${env.TEST_MODULES} --alluredir ${params.alluredir}_${env.build_date}"
+                sh "pytest ${params.testsuite} --alluredir ${params.alluredir}_${env.build_date}"
             }
         }
         stage('Generate Allure Report') {
             steps {
-                sh "allure generate ${params.alluredir}_${env.build_date} -o allure-report_${env.build_date}"
+                sh "allure generate ${params.alluredir}_${env.build_date} -o -c allure-report_${env.build_date}"
             }
         }
     }
@@ -55,7 +39,7 @@ pipeline {
             emailext(
                 subject: 'Pipeline Build Status: ${currentBuild.currentResult}',
                 body: 'Details of the pipeline build: ${currentBuild.fullDisplayName}\nBuild result: ${currentBuild.currentResult}',
-                to: 'zhaoyu.wang@thundersoft.com' // 替换为实际收件人邮箱地址
+                to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
     }
