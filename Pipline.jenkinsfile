@@ -64,7 +64,7 @@ pipeline {
                             <head>
                                 <style>
                                     table {
-                                        width: 100%; /* 设置表格宽度为100% */
+                                        width: 40%; /* 设置表格宽度为100% */
                                         border-collapse: collapse;
                                     }
                                     th, td {
