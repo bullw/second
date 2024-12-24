@@ -46,9 +46,55 @@ pipeline {
     }
     post {
         always {
+        script {
+            def passedCount = 0
+            def failedCount = 0
+            def skippedCount = 0
+            def failedCases = []
+            def skippedCases = []
+            def allureResultsPath = "${params.alluredir}_${env.build_date}"
+            // 使用 file 函数获取目录对象，然后遍历该目录下的文件
+            def resultFiles = file(allureResultsPath).listFiles({ file ->
+                file.name.endsWith('result.json')
+            } as FileFilter)
+            resultFiles.each { resultFile ->
+                def jsonText = readFile(resultFile.path)
+                def jsonData = new groovy.json.JsonSlurper().parseText(jsonText)
+                def status = jsonData.status
+                switch (status) {
+                    case "passed":
+                        passedCount++
+                        break
+                    case "failed":
+                        failedCount++
+                        failedCases << resultFile.name.replace('.result.json', '')
+                        break
+                    case "skipped":
+                        skippedCount++
+                        skippedCases << resultFile.name.replace('.result.json', '')
+                        break
+                    default:
+                        // 可以根据实际情况处理其他未知状态，这里暂不做特殊处理
+                        break
+                }
+            }
+            env.PASSED_COUNT = passedCount.toString()
+            env.FAILED_COUNT = failedCount.toString()
+            env.SKIPPED_COUNT = skippedCount.toString()
+            env.FAILED_CASES = failedCases.join(', ')
+            env.SKIPPED_CASES = skippedCases.join(', ')
+        }
             emailext(
                 subject: 'Pipeline Build Status: ${currentBuild.currentResult}',
-                body: 'Details of the pipeline build: ${currentBuild.fullDisplayName}\nBuild result: ${currentBuild.currentResult}',
+                body: '''Details of the pipeline build: ${currentBuild.fullDisplayName}
+Build result: ${currentBuild.currentResult}
+
+Allure Report Summary:
+Passed Case Count: ${env.PASSED_COUNT}
+Failed Case Count: ${env.FAILED_COUNT}
+Failed Cases: ${env.FAILED_CASES}
+Skipped Case Count: ${env.SKIPPED_COUNT}
+Skipped Cases: ${env.SKIPPED_CASES}''',
                 to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
