@@ -27,7 +27,7 @@ pipeline {
         }
         stage('Run Pytest Tests') {
             steps {
-                sh "./pytest-env/bin/python -m pytest ${params.testsuite} --alluredir ${params.alluredir}_${env.build_date}  || true"
+                sh "./pytest-env/bin/python -m pytest ${params.testsuite} --alluredir ${params.alluredir}_${env.build_date} || true"
             }
         }
         stage('Allure Report') {
@@ -45,7 +45,12 @@ pipeline {
         }
         stage('Get results') {
             steps {
-                case_result = sh(script: "python ${params.alluredir}_${env.build_date}", returnStdout: true).trim()
+                script {
+                    // 执行结果统计 Python 脚本，并捕获输出
+                    def case_result = sh(script: "python3 result_stats.py ${params.alluredir}_${env.build_date}", returnStdout: true).trim()
+                    // 将结果存储到环境变量，以便在 post 块中使用
+                    env.CASE_RESULT = case_result
+                }
             }
         }
     }
@@ -54,9 +59,9 @@ pipeline {
             emailext(
                 subject: "Pipeline Build Status: ${currentBuild.currentResult}",
                 body: "Details of the pipeline build: ${currentBuild.fullDisplayName}\n" +
-                    "Build result: ${currentBuild.currentResult}\n\n" +
-                    "Allure Report Summary:\n" +
-                    "${case_result}\n",
+                      "Build result: ${currentBuild.currentResult}\n\n" +
+                      "Allure Report Summary:\n" +
+                      "${env.CASE_RESULT}\n",
                 to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
             )
         }
