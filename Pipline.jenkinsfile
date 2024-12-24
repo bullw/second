@@ -1,11 +1,11 @@
 pipeline {
     agent any
     parameters {
-        choice(
-            name: 'testcases',
-            choices: ['testcases/api_test', 'testcases/scenario_test'],
-            description: '选择测试模块（可多选，用空格分开）'
-        )
+        // 使用 Active Choices 参数
+        activeChoice(name: 'testcases', 
+                     choices: ['testcases/api_test', 'testcases/scenario_test'], 
+                     description: '选择测试模块（可多选）',
+                     multiSelect: true)
         string(
             name: 'alluredir',
             defaultValue: 'report',
@@ -19,12 +19,19 @@ pipeline {
         stage('Prepare Test Modules') {
             steps {
                 script {
-                    // 获取用户的选择
+                    // 获取用户选择的测试模块
                     def selectedTests = params.testcases.split(',').collect { it.trim() }
                     // 将选择的测试模块用空格连接
                     env.TEST_MODULES = selectedTests.join(' ')
                     echo "Test modules to run: ${env.TEST_MODULES}"
                 }
+            }
+        }
+        stage('Build environment') {
+            steps {
+                sh "python3 -m venv pytest-env"
+                sh ". pytest-env"
+                sh "pip install -r requirements.txt"
             }
         }
         stage('Run Pytest Tests') {
@@ -43,7 +50,7 @@ pipeline {
             emailext(
                 subject: 'Pipeline Build Status: ${currentBuild.currentResult}',
                 body: 'Details of the pipeline build: ${currentBuild.fullDisplayName}\nBuild result: ${currentBuild.currentResult}',
-                to: 'zhaoyu.wang@thundersoft.com'  // 替换为实际收件人邮箱地址
+                to: 'zhaoyu.wang@thundersoft.com' // 替换为实际收件人邮箱地址
             )
         }
     }
