@@ -82,13 +82,13 @@ pipeline {
                                     .skipped {
                                         background-color: #fcf8e3; /* 黄色背景 */
                                     }
-                                    .unknown {
+                                    .broken {
                                         background-color: #d9edf7; /* 蓝色背景 */
                                     }
                                 </style>
                             </head>
                             <body>
-                                <h3>Details of the pipeline build: ${currentBuild.fullDisplayName}</h3>
+                                <h3><a href="${buildUrl}">Details of the pipeline build: ${currentBuild.fullDisplayName}</a></h3>
                                 <p>Build result: ${currentBuild.currentResult}</p>
                                 ${env.CASE_RESULT}
                             </body>
