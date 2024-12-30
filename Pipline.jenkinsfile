@@ -90,8 +90,9 @@ pipeline {
                                 </style>
                             </head>
                             <body>
-                                <h3><a href="${BUILDURL}">Details of the pipeline build: ${currentBuild.fullDisplayName}</a></h3>
-                                <p>Build result: ${currentBuild.currentResult}</p>
+                                <h3>Pipline Job：<a href="${BUILDURL}">${currentBuild.fullDisplayName}</a></h3>
+                                <h3>Test Report：<a href="${BUILDURL}/allure">${env.BUILD_ID}</a></h3>
+                                <p>Build Status: ${currentBuild.currentResult}</p>
                                 ${env.CASE_RESULT}
                             </body>
                         </html>""",
